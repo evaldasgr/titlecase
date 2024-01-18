@@ -1,0 +1,71 @@
+#!/usr/bin/python3
+import sys, os
+
+# Capitalizes every word in the title
+def capitalCase(title):
+    makeCapital = True
+
+    newTitle = ""
+    
+    for c in title:
+        if c.isalpha():
+            if (makeCapital):
+                c = c.upper()
+            else:
+                c = c.lower()
+
+            makeCapital = False
+        elif c == ' ' or c == '(' or c == ')' or c == '.':
+            makeCapital = True
+
+        newTitle += c
+
+    return newTitle
+
+# Makes certain exception words lowercase
+# The provided title must already be in capital case
+def titleCase(title):
+    Exceptions = [
+        "A ", "An ", "The ", "At ", "By ", "For ", "In ", "Of ", "On ", "To ",
+        "Up ","And ", "As ", "But ", "Or ", "Nor "
+    ]
+
+    # The first word should not be made lowercase, so it must be excluded from
+    # the following loop
+    # This may be achieved simply by cutting the first character, as then no
+    # exception will match the cut word
+    work = title[1:]
+    for e in Exceptions:
+        work = work.replace(e, e.lower())
+
+    return title[0] + work
+
+def main():
+    path = "."
+    if len(sys.argv) == 2 and not sys.argv[1] == "":
+        path = sys.argv[1]
+    elif not len(sys.argv) == 1:
+        print("titlecase - Renames all files to match title capitalization rules")
+        print("Usage:")
+        print("titlecase      - Renames files in the working directory")
+        print("titlecase path - Renames files in the specified directory")
+        sys.exit(1)
+
+    for fn in os.listdir(path):
+        # The filename format is expected to be "TrackNumber Title.Extension"
+        # Separate the title for capitalization
+        beg = fn.find(' ') + 1
+        end = fn.rfind('.')
+        title = fn[beg:end]
+
+        title = capitalCase(title)
+        title = titleCase(title)
+
+        newFn = fn[:beg] + title + fn[end:]
+
+        print("Renaming " + fn + " to " + newFn + "...")
+        os.rename(os.path.join(path, fn), os.path.join(path, newFn))
+
+# Main
+if __name__ == "__main__":
+    main()
